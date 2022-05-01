@@ -20,6 +20,7 @@ public class ClydeTest {
     private GhostMapParser gmp;
     private Player pacman;
 
+
     @BeforeEach
     void setUp() {
         PacManSprites sprites = new PacManSprites();

@@ -93,6 +93,7 @@ public class InkyTest {
         assertThat(inky.nextAiMove()).isEqualTo(Optional.empty());
     }
 
+
     @Test
     void BlinkyHasNoSquare() {
         List<String> layout = Lists.newArrayList(
