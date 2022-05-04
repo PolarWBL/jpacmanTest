@@ -11,7 +11,7 @@ The unchecked collision functionality relates to the more advanced multiplayer v
 We could test what happens if two players collide. That is the remaining collisions we have not tested.
 */
 
-public abstract class PlayerCollisionTest {
+public abstract class PlayerCollisionsTest {
     private Player player = mock(Player.class);
     private Ghost ghost = mock(Ghost.class);
     private Pellet pellet = mock(Pellet.class);
