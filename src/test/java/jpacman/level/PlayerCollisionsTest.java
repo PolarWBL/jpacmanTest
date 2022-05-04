@@ -6,9 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
 /*
-This increase in coverage after the extension of the class tests a more scalable collision map.
-The unchecked collision functionality relates to the more advanced multiplayer version.
-We could test what happens if two players collide. That is the remaining collisions we have not tested.
+碰撞测试
 */
 
 public abstract class PlayerCollisionsTest {
