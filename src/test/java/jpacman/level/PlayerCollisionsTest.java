@@ -1,71 +1,175 @@
 package jpacman.level;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
+import jpacman.board.Unit;
 import jpacman.npc.Ghost;
-import jpacman.points.DefaultPointCalculator;
+import jpacman.npc.ghost.Blinky;
+import jpacman.npc.ghost.Clyde;
+import jpacman.npc.ghost.Inky;
+import jpacman.npc.ghost.Pinky;
+import jpacman.points.PointCalculator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import static org.mockito.Mockito.*;
 
-/*
-碰撞测试
-*/
+/**
+ * 对游戏期间可能发生的所有碰撞进行测试。
+ */
+public class PlayerCollisionsTest {
 
-public abstract class PlayerCollisionsTest {
-    private Player player = mock(Player.class);
-    private Ghost ghost = mock(Ghost.class);
-    private Pellet pellet = mock(Pellet.class);
-    private CollisionMap cmap;
+    private static final List<Class<? extends Unit>> PLAYERS = List.of(Player.class);
+    private static final List<Class<? extends Unit>> GHOSTS = Arrays.asList(
+        Blinky.class,
+        Clyde.class,
+        Ghost.class,
+        Inky.class,
+        Pinky.class);
+    private static final List<Class<? extends Unit>> COLLISION_LESS = List.of(Unit.class);
+    private static final List<Class<? extends Unit>> PELLETS = List.of(Pellet.class);
 
-    void setCmap(CollisionMap cmap){
-        this.cmap = cmap;
+    private PointCalculator pointCalculatorMock = null;
+    private List<CollisionMap> collisionMapsToTest = null;
+
+    @BeforeEach
+    public void setUp() {
+        pointCalculatorMock = Mockito.mock(PointCalculator.class);
+        collisionMapsToTest = new ArrayList<>();
+        collisionMapsToTest.add(Mockito.spy(new PlayerCollisions(pointCalculatorMock)));
+        collisionMapsToTest.add(Mockito.spy(new DefaultPlayerInteractionMap(pointCalculatorMock)));
     }
 
+    /**
+     * 玩家和玩家之间的碰撞
+     */
     @Test
-    public void PlayerCollidesWithGhost(){
-        cmap.collide(player, ghost);
-        verify(player).setAlive(false);
-        verifyZeroInteractions(ghost);
-        verifyZeroInteractions(pellet);
+    public void test_collide_playerOnPlayer() {
+        for (Class<? extends Unit> playerClassA : PLAYERS) {
+            Unit playerA = Mockito.mock(playerClassA);
+            for (Class<? extends Unit> playerClassB : PLAYERS) {
+                Unit playerB = Mockito.mock(playerClassB);
+                collisionMapsToTest.forEach(map -> map.collide(playerA, playerB));
+            }
+        }
+        verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
+        verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
 
+    /**
+     * 玩家和豆子之间的碰撞
+     */
     @Test
-    public void PlayerCollidesWithPellet(){
-        when(pellet.getValue()).thenReturn(3);
-        cmap.collide(player, pellet);
-        verify(player).addPoints(3);
-        verify(pellet).leaveSquare();
-        verifyZeroInteractions(ghost);
+    public void test_collide_playerOnPellet() {
+        int collisionCounter = 0;
+        for (Class<? extends Unit> playerClass : PLAYERS) {
+            Unit player = Mockito.mock(playerClass);
+            for (Class<? extends Unit> pelletClass : PELLETS) {
+                Unit pellet = Mockito.mock(pelletClass);
+
+                collisionMapsToTest.forEach(map -> {
+                    map.collide(player, pellet);
+                    map.collide(pellet, player);
+                });
+                collisionCounter += 2;
+            }
+        }
+
+        verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
+
+        verify(pointCalculatorMock, times(collisionCounter * collisionMapsToTest.size()))
+            .consumedAPellet(any(), any());
+        System.out.println(collisionCounter * collisionMapsToTest.size());
+
     }
 
+    /**
+     * 幽灵和幽灵之间的碰撞
+     */
     @Test
-    public void GhostCollidesWithPellet(){
-        cmap.collide(ghost, pellet);
-        verifyZeroInteractions(player);
-        verifyZeroInteractions(ghost);
-        verifyZeroInteractions(pellet);
+    public void test_collide_ghostOnGhost() {
+        for (Class<? extends Unit> ghostClassA : GHOSTS) {
+            Unit ghostA = Mockito.mock(ghostClassA);
+            for (Class<? extends Unit> ghostClassB : GHOSTS) {
+                Unit ghostB = Mockito.mock(ghostClassB);
+
+                collisionMapsToTest.forEach(map -> map.collide(ghostA, ghostB));
+            }
+        }
+
+        verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
+        verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
 
+    /**
+     * 幽灵和豆子之间的碰撞
+     */
     @Test
-    public void GhostCollidesWithPlayer(){
-        cmap.collide(ghost, player);
-        verify(player).setAlive(false);
-        verifyZeroInteractions(ghost);
-        verifyZeroInteractions(pellet);
+    public void test_collide_ghostOnPellet() {
+        for (Class<? extends Unit> ghostClass : GHOSTS) {
+            Unit ghost = Mockito.mock(ghostClass);
+            for (Class<? extends Unit> pelletClass : PELLETS) {
+                Unit pellet = Mockito.mock(pelletClass);
+
+                collisionMapsToTest.forEach(map -> {
+                    map.collide(ghost, pellet);
+                    map.collide(pellet, ghost);
+                });
+            }
+        }
+
+        verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
+        verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
 
+    /**
+     * 玩家或者幽灵和空地之间的碰撞
+     */
     @Test
-    public void PelletCollidesWithGhost(){
-        cmap.collide(pellet, ghost);
-        verifyZeroInteractions(player);
-        verifyZeroInteractions(ghost);
-        verifyZeroInteractions(pellet);
+    public void test_collide_movingOnCollisionLess() {
+        Stream.concat(PLAYERS.stream(), GHOSTS.stream()).forEach(moverClass -> {
+            Unit mover = Mockito.mock(moverClass);
+            for (Class<? extends Unit> collisionClass : COLLISION_LESS) {
+                Unit collisionLessUnit = Mockito.mock(collisionClass);
+
+                collisionMapsToTest.forEach(map -> {
+                    map.collide(mover, collisionLessUnit);
+                    map.collide(collisionLessUnit, mover);
+                });
+            }
+        });
+
+        verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
+        verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
 
+    /**
+     * 玩家和幽灵之间的碰撞
+     */
     @Test
-    public void PelletCollidesWithPlayer(){
-        when(pellet.getValue()).thenReturn(3);
-        cmap.collide(pellet, player);
-        verify(player).addPoints(3);
-        verify(pellet).leaveSquare();
-        verifyZeroInteractions(ghost);
+    public void test_collide_playerOnGhost() {
+        int collisionCounter = 0;
+        for (Class<? extends Unit> playerClass : PLAYERS) {
+            Unit player = Mockito.mock(playerClass);
+            for (Class<? extends Unit> ghostClass : GHOSTS) {
+                Unit ghost = Mockito.mock(ghostClass);
+
+                collisionMapsToTest.forEach(map -> {
+                    map.collide(player, ghost);
+                    map.collide(ghost, player);
+                });
+                collisionCounter += 2;
+            }
+        }
+        System.out.println(collisionCounter * collisionMapsToTest.size());
+        verify(pointCalculatorMock, times(collisionCounter * collisionMapsToTest.size()))
+            .collidedWithAGhost(any(), any());
+        verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
 }

@@ -16,6 +16,18 @@ import java.util.List;
  */
 public final class GhostMapParser extends MapParser {
     private final GhostFactory ghostFactory;
+    /**
+     * Maps for tests are stored in the resources directory as `[NameOfTestClass]/[NameOfTest].map`.
+     *
+     * @return the relative path to the test-map
+     * @throws java.lang.ClassNotFoundException should not be thrown
+     */
+    public static String getMapNameForTest() throws ClassNotFoundException {
+        String className = Thread.currentThread().getStackTrace()[2].getClassName();
+        String simpleClassName = Class.forName(className).getSimpleName();
+        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        return "/" + simpleClassName + "/" + methodName + ".map";
+    }
 
     /**
      * Creates a new enhanced map parser.
