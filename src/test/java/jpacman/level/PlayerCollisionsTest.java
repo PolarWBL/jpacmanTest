@@ -55,7 +55,9 @@ public class PlayerCollisionsTest {
             Unit playerA = Mockito.mock(playerClassA);
             for (Class<? extends Unit> playerClassB : PLAYERS) {
                 Unit playerB = Mockito.mock(playerClassB);
-                collisionMapsToTest.forEach(map -> map.collide(playerA, playerB));
+                for (CollisionMap collisionMap : collisionMapsToTest) {
+                    collisionMap.collide(playerA, playerB);
+                }
             }
         }
         verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
@@ -72,21 +74,15 @@ public class PlayerCollisionsTest {
             Unit player = Mockito.mock(playerClass);
             for (Class<? extends Unit> pelletClass : PELLETS) {
                 Unit pellet = Mockito.mock(pelletClass);
-
-                collisionMapsToTest.forEach(map -> {
-                    map.collide(player, pellet);
-                    map.collide(pellet, player);
-                });
+                for (CollisionMap collisionMap : collisionMapsToTest) {
+                    collisionMap.collide(player, pellet);
+                    collisionMap.collide(pellet, player);
+                }
                 collisionCounter += 2;
             }
         }
-
         verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
-
-        verify(pointCalculatorMock, times(collisionCounter * collisionMapsToTest.size()))
-            .consumedAPellet(any(), any());
-        System.out.println(collisionCounter * collisionMapsToTest.size());
-
+        verify(pointCalculatorMock, times(collisionCounter * collisionMapsToTest.size())).consumedAPellet(any(), any());
     }
 
     /**
@@ -98,11 +94,11 @@ public class PlayerCollisionsTest {
             Unit ghostA = Mockito.mock(ghostClassA);
             for (Class<? extends Unit> ghostClassB : GHOSTS) {
                 Unit ghostB = Mockito.mock(ghostClassB);
-
-                collisionMapsToTest.forEach(map -> map.collide(ghostA, ghostB));
+                for (CollisionMap collisionMap : collisionMapsToTest) {
+                    collisionMap.collide(ghostA, ghostB);
+                }
             }
         }
-
         verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
         verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
@@ -116,14 +112,12 @@ public class PlayerCollisionsTest {
             Unit ghost = Mockito.mock(ghostClass);
             for (Class<? extends Unit> pelletClass : PELLETS) {
                 Unit pellet = Mockito.mock(pelletClass);
-
-                collisionMapsToTest.forEach(map -> {
-                    map.collide(ghost, pellet);
-                    map.collide(pellet, ghost);
-                });
+                for (CollisionMap collisionMap : collisionMapsToTest) {
+                    collisionMap.collide(ghost, pellet);
+                    collisionMap.collide(pellet, ghost);
+                }
             }
         }
-
         verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
         verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
@@ -137,14 +131,12 @@ public class PlayerCollisionsTest {
             Unit mover = Mockito.mock(moverClass);
             for (Class<? extends Unit> collisionClass : COLLISION_LESS) {
                 Unit collisionLessUnit = Mockito.mock(collisionClass);
-
-                collisionMapsToTest.forEach(map -> {
-                    map.collide(mover, collisionLessUnit);
-                    map.collide(collisionLessUnit, mover);
-                });
+                for (CollisionMap collisionMap : collisionMapsToTest) {
+                    collisionMap.collide(mover, collisionLessUnit);
+                    collisionMap.collide(collisionLessUnit, mover);
+                }
             }
         });
-
         verify(pointCalculatorMock, times(0)).collidedWithAGhost(any(), any());
         verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
@@ -159,17 +151,14 @@ public class PlayerCollisionsTest {
             Unit player = Mockito.mock(playerClass);
             for (Class<? extends Unit> ghostClass : GHOSTS) {
                 Unit ghost = Mockito.mock(ghostClass);
-
-                collisionMapsToTest.forEach(map -> {
-                    map.collide(player, ghost);
-                    map.collide(ghost, player);
-                });
+                for (CollisionMap collisionMap : collisionMapsToTest) {
+                    collisionMap.collide(player, ghost);
+                    collisionMap.collide(ghost, player);
+                }
                 collisionCounter += 2;
             }
         }
-        System.out.println(collisionCounter * collisionMapsToTest.size());
-        verify(pointCalculatorMock, times(collisionCounter * collisionMapsToTest.size()))
-            .collidedWithAGhost(any(), any());
+        verify(pointCalculatorMock, times(collisionCounter * collisionMapsToTest.size())).collidedWithAGhost(any(), any());
         verify(pointCalculatorMock, times(0)).consumedAPellet(any(), any());
     }
 }
