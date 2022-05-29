@@ -36,23 +36,17 @@ class MapParserTest {
      * parseMap函数正确创建了相应的board以及board上的对象。
      */
     @Test
-    void testLevelCreationViaFile() {
+    void testLevelCreationViaFile() throws IOException {
         Ghost ghost = Mockito.mock(Ghost.class);
         Mockito.when(levelFactory.createGhost()).thenReturn(ghost);
         Pellet pellet = Mockito.mock(Pellet.class);
         Mockito.when(levelFactory.createPellet()).thenReturn(pellet);
-
-        try {
-            mapParser.parseMap("/testMap.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mapParser.parseMap("/testMap.txt");
 
         Mockito.verify(levelFactory, Mockito.times(2)).createGhost();
         Mockito.verify(levelFactory, Mockito.times(2)).createPellet();
         Mockito.verify(boardFactory, Mockito.times(2)).createWall();
         Mockito.verify(boardFactory, Mockito.times(6)).createGround();
-
     }
 
     /**
