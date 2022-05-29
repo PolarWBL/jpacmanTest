@@ -190,20 +190,20 @@ public class MapParser {
 
         if (text.isEmpty()) {
             throw new PacmanConfigurationException(
-                "Input text must consist of at least 1 row.");
+                    "Input text must consist of at least 1 row.");
         }
 
         int width = text.get(0).length();
 
         if (width == 0) {
             throw new PacmanConfigurationException(
-                "Input text lines cannot be empty.");
+                    "Input text lines cannot be empty.");
         }
 
         for (String line : text) {
             if (line.length() != width) {
                 throw new PacmanConfigurationException(
-                    "Input text lines are not of equal width.");
+                        "Input text lines are not of equal width.");
             }
         }
     }
@@ -220,7 +220,7 @@ public class MapParser {
      */
     public Level parseMap(InputStream source) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-            source, "UTF-8"))) {
+                source, "UTF-8"))) {
             List<String> lines = new ArrayList<>();
             while (reader.ready()) {
                 lines.add(reader.readLine());
@@ -240,8 +240,8 @@ public class MapParser {
      *             when the resource could not be read.
      */
     @SuppressFBWarnings(
-        value = {"OBL_UNSATISFIED_OBLIGATION", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
-        justification = "try with resources always cleans up / false positive in java 11"
+            value = {"OBL_UNSATISFIED_OBLIGATION", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
+            justification = "try with resources always cleans up / false positive in java 11"
     )
     public Level parseMap(String mapName) throws IOException {
         try (InputStream boardStream = MapParser.class.getResourceAsStream(mapName)) {
