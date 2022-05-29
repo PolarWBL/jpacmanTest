@@ -43,7 +43,7 @@ class MapParserTest {
      * parseMap函数正确创建了相应的board以及board上的对象。
      */
     @Test
-    void testLevelCreationViaCharArray() {
+    void testLevelCreationViaFile() {
         Ghost ghost = Mockito.mock(Ghost.class);
         Mockito.when(levelFactory.createGhost()).thenReturn(ghost);
         Pellet pellet = Mockito.mock(Pellet.class);
@@ -66,7 +66,7 @@ class MapParserTest {
      * 测试输入文本不等宽的情况, 抛出PacmanConfigurationException异常
      */
     @Test
-    void varyingStringLengthInListTest() {
+    void testNotEqualWidth() {
         assertThrows(PacmanConfigurationException.class, () -> mapParser.parseMap("/errorMap.txt"));
     }
 }
